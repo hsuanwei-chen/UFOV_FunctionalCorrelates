@@ -13,96 +13,71 @@ library(circlize)
 #User defined variables
 ###########################
 #Set working directory
-#Yeo 2011 UFOV
-setwd("T:/Stacy/Scans/BRAINY/1_Derivatives/Adrian_UFOV_RestingState/ConnectivityMatrices_Yeo2011_7Networks")
 #Schaefer400 UFOV
-#setwd("T:/Stacy/Scans/BRAINY/1_Derivatives/Adrian_UFOV_RestingState/ConnectivityMatrices_Schaefer2018_400Parcels_7Networks")
+setwd("T:/Stacy/Scans/BRAINY/1_Derivatives/Adrian_UFOV_RestingState/ConnectivityMatrices_Schaefer2018_400Parcels")
 
-#Yeo 2011 DTS
-#setwd("T:/Stacy/Scans/BRAINY/1_Derivatives/Adrian_DTS_RestingState/ConnectivityMatrices_Yeo2011_7Networks")
 #Schaefer400 DTS
-#setwd("T:/Stacy/Scans/BRAINY/1_Derivatives/Adrian_DTS_RestingState/ConnectivityMatrices_Schaefer2018_400Parcels_7Networks")
+#setwd("T:/Stacy/Scans/BRAINY/1_Derivatives/Adrian_DTS_RestingState/ConnectivityMatrices_Schaefer2018_400Parcels")
 
 #Read csv file
 data <- read_csv("FisherZ_group_summary.csv") #This file contains all the network pair connectivity values for each subject
 data <- data %>% mutate(group = ifelse(startsWith(subject_id, "sub-BR1"), "mTBI", #Adding a group column
                                        "Control"))                                #This can also be added manually
-data <- data %>% relocate(group, .before = `Vis-SomMot`)
+data <- data %>% relocate(group, .before = `X1`)
 
-#Define the order of your networks
-network_order <-  factor(c("Vis", "SomMot", "DorsAttn", "SalVentAttn", "Limbic", "Cont", "Default"),
-                         levels = c("Vis", "SomMot", "DorsAttn", "SalVentAttn", "Limbic", "Cont", "Default"))
-
-network_n <- length(network_order)
+#Define the number of parcels
+parcel_n <- 400
 
 #Define atlas name
-#atlas_name <- "Yeo2011 7Networks"
-atlas_name <- "Schaefer400 7Networks"
+atlas_name <- "Schaefer400"
 
 #Define function used to plot mean connectivity heatmap
-plot_meanConnHeatmap_byNetwork <- function(meanConn, network_order, network_n, condition,
-                                           atlas_name){
+plot_meanConnHeatmap_byParcel <- function(meanConn, parcel_n, condition, atlas_name){
   #This function is designed to take in an average connectivity vector and generate a heatmap
   #It reads in a vector and reorders it into a matrix for plotting
-  #It assumes that there are 21 network pairs for a 7 network parcellation (7*6/2 = 21)
+  #It assumes that there are 400 parcels (400*399/2 = 79800)
   #
   #Here are the expected variables:
-  # meanConn = a vector containing 21 mean connectivity values
-  # network_order = a character array containing the networks in an user-defined order 
-  # network_n = the number of unique networks
+  # meanConn = a vector containing 79800 mean connectivity values
+  # parcel_n = the number of unique parcels
   # condition = what the mean connectivity values are referring to {entire sample or subset of a group}
-  # atlas_name = name of the atlas used (ex. Yeo2011's 7Network atlas)
+  # atlas_name = name of the atlas used (ex. Schaefer 2018's 400 Parcels)
   
   #Create an empty matrix based on the number of networks
-  mat <- matrix(nrow = network_n, ncol = network_n)
-  colnames(mat) <- network_order
-  rownames(mat) <- network_order
+  mat <- matrix(nrow = parcel_n, ncol = parcel_n)
   
-  #For loop for filling in the matrix
-  index <- rev(1:(network_n-1))
+  #Fill in the matrix
+  index <- rev(0:399)
   print("Code for filling each column...")
-  for (i in 1:length(index)){
+  for (i in 1:7){
     if (i == 1){
-      #Set up the indices for the first column
       start_index <- 1
       end_index <- index[i]
       
-      #Print code for sanity checks
       log <- paste("mat[", i+1, ":", ncol(mat), ",", i, "] <- meanConn[", 
                    start_index, ":", end_index, "]", sep = "")
       print(log)
-      
-      #Fill in numbers for each column and row
       mat[(i+1):ncol(mat), i] <- meanConn[start_index:end_index] 
-      mat[i, (i+1):ncol(mat)] <- meanConn[start_index:end_index] 
       
-      #Set up the starting index for next column and row
       start_index <- start_index + index[i]
     }else{
-      #Set up the end index for this column and row
       end_index <- end_index + index[i]
       
-      #Print code for sanity checks
       log <- paste("mat[", i+1, ":", ncol(mat), ",", i, "] <- meanConn[", 
                    start_index, ":", end_index, "]", sep = "")
       print(log)
-      
-      #Fill in numbers for each column and row
       mat[(i+1):ncol(mat), i] <- meanConn[start_index:end_index] 
-      mat[i, (i+1):ncol(mat)] <- meanConn[start_index:end_index] 
       
-      #Set up the starting index for next column and row
       start_index <- start_index + index[i]
     }
   }
   
-  #Hard coding for filling in the matrix
-  #mat[2:7,1] <- meanConn[1:6]; mat[1,2:7] <- meanConn[1:6]
-  #mat[3:7,2] <- meanConn[7:11]; mat[2,3:7] <- meanConn[7:11]
-  #mat[4:7,3] <- meanConn[12:15]; mat[3,4:7] <- meanConn[12:15]
-  #mat[5:7,4] <- meanConn[16:18]; mat[4,5:7] <- meanConn[16:18]
-  #mat[6:7,5] <- meanConn[19:20]; mat[5,6:7] <- meanConn[19:20]
-  #mat[7,6] <- meanConn[21]; mat[6,7] <- meanConn[21]
+  mat[2:400,1] <- meanConn[1:399]
+  mat[3:400,2] <- meanConn[400:797]
+  mat[4:400,3] <- meanConn[12:15]
+  mat[5:400,4] <- meanConn[16:18]
+  mat[6:400,5] <- meanConn[19:20]
+  mat[7,6] <- meanConn[21]
   
   #Define heatmap color scheme and plot title
   #This function also assumes values are between 0.2 and 1.4
@@ -122,7 +97,7 @@ plot_meanConnHeatmap_byNetwork <- function(meanConn, network_order, network_n, c
                                        gp = gpar(fontsize = 10))
                          })
   #Save the heatmap
-  network_map_fname <- paste("FisherZ_meanFC_heatmap_", condition, ".png", sep = "")
+  network_map_fname <- paste("FisherZ_", condition, "_meanFC_heatmap.png", sep = "")
   png(filename = network_map_fname, type = "cairo", units ="in", 
       width = 7, height = 6, res = 1200)
   draw(network_map)
@@ -133,11 +108,11 @@ plot_meanConnHeatmap_byNetwork <- function(meanConn, network_order, network_n, c
 #Entire Sample
 ###########################
 #Derive mean connectivity per network pair
-meanConn <- colMeans(data[,5:25])
+meanConn <- colMeans(data[,5:ncol(data)])
 
 #Plot the entire sample condition
 condition <- "EntireSample"
-plot_meanConnHeatmap_byNetwork(meanConn, network_order, network_n, condition, atlas_name)
+plot_meanConnHeatmap_byParcel(meanConn, parcel_n, condition, atlas_name)
 
 ###########################
 #By Group (mTBI vs Control)
@@ -150,11 +125,11 @@ meanConn_cont <- data.matrix(meanConn_ByGroup[2,2:22])
 
 #Plot mTBI condition
 condition <- "mTBI"
-plot_meanConnHeatmap_byNetwork(meanConn_mTBI, network_order, network_n, condition, atlas_name)
+plot_meanConnHeatmap_byParcel(meanConn_mTBI, network_order, network_n, condition, atlas_name)
 
 #Plot control condition
 condition <- "Control"
-plot_meanConnHeatmap_byNetwork(meanConn_cont, network_order, network_n, condition, atlas_name)
+plot_meanConnHeatmap_byParcel(meanConn_cont, network_order, network_n, condition, atlas_name)
 
 ###########################
 #By Scan (ftap vs rest)
@@ -167,8 +142,8 @@ meanConn_rest <- data.matrix(meanConn_ByScan[2, 2:22])
 
 #Plot ftap condition
 condition <- "ftap"
-plot_meanConnHeatmap_byNetwork(meanConn_ftap, network_order, network_n, condition, atlas_name)
+plot_meanConnHeatmap_byParcel(meanConn_ftap, network_order, network_n, condition, atlas_name)
 
 #Plot rest condition
 condition <- "rest"
-plot_meanConnHeatmap_byNetwork(meanConn_rest, network_order, network_n, condition, atlas_name)
+plot_meanConnHeatmap_byParcel(meanConn_rest, network_order, network_n, condition, atlas_name)
