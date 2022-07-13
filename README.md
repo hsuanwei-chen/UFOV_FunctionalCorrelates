@@ -9,8 +9,16 @@ To derive connectivity values, run:
 4) PostProcessList.py
 5) batch_postprocess_list.m (from CNIR-fmri-preproc-toolbox)
 6) FD_calculation.m
-7) batch_FunctionalConnectivity_"AtlasName".m
+7) batch_FunctionalConnectivity_{AtlasName}.m
 
-To generate connectivity heatmaps 
+To generate connectivity heatmaps prior to averaging connectivity values, run: 
+1) Plot_meanConnNetworkHeatmap_{7Networks or 400Parcels}
 
-To concatenate the connectivity values per subject-session:
+To average the connectivity values per subject-session, run:
+1) ConcatenateFC_{7Networks or 400Parcels}
+
+To plot the connectivty heatmaps after averaging connectivity values, run:
+1) Plot_Concat_meanConnNetworkHeatmap_{7Networks or 400Parcels}
+
+Other:
+- meanConnNetworkHeatmap_by{Network or parcel}
