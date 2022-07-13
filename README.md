@@ -9,4 +9,5 @@ Order of running the scripts:
 4) PostProcessList.py
 5) batch_postprocess_list.m (from CNIR-fmri-preproc-toolbox)
 6) FD_calculation.m
-7) batch_FunctionalConnectivity_Yeo2011.m
+7) batch_FunctionalConnectivity_"AtlasName".m
+8) 
