@@ -3,10 +3,7 @@
 clear; clc;
 
 %Define file path
-%DTS project
-procdir = '\\kki-gspnas1\DCN_data$\Stacy\Scans\BRAINY\1_Derivatives\Adrian_DTS_RestingState';
-%UFOV project
-%procdir = '\\kki-gspnas1\DCN_data$\Stacy\Scans\BRAINY\1_Derivatives\Adrian_UFOV_RestingState';
+procdir = '\\kki-gspnas1\DCN_data$\Stacy\Scans\BRAINY\1_Derivatives\UFOV_FunctionalCorrelates';
 
 %Read in the subject list
 slist = readtable(fullfile(procdir, 'ScansToPostProcess.csv'));
@@ -15,7 +12,7 @@ istart = 1;
 iend = length(slist.subject_id);
 
 %Initialize variables to save summary values
-motion_header = {'ID', 'Session', 'Task', 'x_mean', 'y_mean', 'z_mean', ...
+motion_header = {'subject_id', 'sess_date', 'task_dir', 'x_mean', 'y_mean', 'z_mean', ...
     'pitch_mean', 'roll_mean', 'yaw_mean', 'FD_mean', 'FD_max'};
 group_motion_tbl = array2table(zeros(0, length(motion_header)));
 group_motion_tbl.Properties.VariableNames = motion_header;
@@ -70,7 +67,7 @@ for isub = istart:iend
 end
 
 %Write output into excel
-dest_fname = strcat(procdir, '\MotionSummary_table.xlsx');
+dest_fname = strcat(procdir, '\MotionSummary_table.csv');
 writetable(group_motion_tbl, dest_fname)
         
 function FD = fmri_FD(rp_file)

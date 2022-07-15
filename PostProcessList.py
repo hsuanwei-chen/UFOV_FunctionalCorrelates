@@ -8,8 +8,7 @@ Created on Wed Jun  8 11:33:11 2022
 import pandas as pd
 import glob
 
-dest_dir = "//kki-gspnas1/dcn_data$/Stacy/Scans/BRAINY/1_Derivatives/Adrian_DTS_RestingState"
-#dest_dir = "//kki-gspnas1/dcn_data$/Stacy/Scans/BRAINY/1_Derivatives/Adrian_UFOV_RestingState"
+dest_dir = "//kki-gspnas1/dcn_data$/Stacy/Scans/BRAINY/1_Derivatives/UFOV_FunctionalCorrelates"
 
 ftap_ses = glob.glob(dest_dir + "/*/*/func/ftap")
 rest_ses = glob.glob(dest_dir + "/*/*/func/rest")
